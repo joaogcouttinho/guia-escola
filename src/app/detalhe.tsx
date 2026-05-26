@@ -1,10 +1,9 @@
 import {
-  View,
+  ScrollView,
   Text,
   StyleSheet,
   TouchableOpacity,
-  Alert,
-  ScrollView,
+  View,
 } from "react-native";
 
 import { useLocalSearchParams } from "expo-router";
@@ -32,13 +31,13 @@ export default function DetalheScreen() {
         : [];
 
       const jaExiste = favoritos.some(
-        (item: any) => item.id === escola.id
+        (item: any) =>
+          Number(item.id) === Number(escola.id)
       );
 
       if (jaExiste) {
-        Alert.alert(
-          "Favoritos",
-          "Esta escola já está salva."
+        alert(
+          "Esta escola já está salva nos favoritos."
         );
         return;
       }
@@ -50,12 +49,15 @@ export default function DetalheScreen() {
         JSON.stringify(favoritos)
       );
 
-      Alert.alert(
-        "Sucesso",
-        "Escola adicionada aos favoritos."
+      alert(
+        `${escola.NO_ENTIDADE} foi adicionada aos favoritos com sucesso!`
       );
     } catch (error) {
       console.log(error);
+
+      alert(
+        "Ocorreu um erro ao salvar o favorito."
+      );
     }
   }
 
@@ -69,18 +71,30 @@ export default function DetalheScreen() {
           {escola.NO_ENTIDADE}
         </Text>
 
-        <Text style={styles.local}>
+        <Text style={styles.municipio}>
           📍 {escola.NO_MUNICIPIO}
         </Text>
       </View>
 
-      <View style={styles.infoCard}>
+      <View style={styles.card}>
         <Text style={styles.label}>
           Endereço
         </Text>
 
         <Text style={styles.valor}>
-          {escola.DS_ENDERECO || "Não informado"}
+          {escola.DS_ENDERECO ||
+            "Não informado"}
+        </Text>
+
+        <View style={styles.divisor} />
+
+        <Text style={styles.label}>
+          Bairro
+        </Text>
+
+        <Text style={styles.valor}>
+          {escola.NO_BAIRRO ||
+            "Não informado"}
         </Text>
 
         <View style={styles.divisor} />
@@ -114,14 +128,9 @@ export default function DetalheScreen() {
       <View style={styles.badges}>
         <Text style={styles.badge}>
           📚 Biblioteca{" "}
-          {verificar(escola.IN_BIBLIOTECA)
-            ? "✅"
-            : "❌"}
-        </Text>
-
-        <Text style={styles.badge}>
-          🌐 Internet{" "}
-          {verificar(escola.IN_INTERNET)
+          {verificar(
+            escola.IN_BIBLIOTECA
+          )
             ? "✅"
             : "❌"}
         </Text>
@@ -130,6 +139,15 @@ export default function DetalheScreen() {
           🏀 Quadra{" "}
           {verificar(
             escola.IN_QUADRA_ESPORTES
+          )
+            ? "✅"
+            : "❌"}
+        </Text>
+
+        <Text style={styles.badge}>
+          🌐 Internet{" "}
+          {verificar(
+            escola.IN_INTERNET
           )
             ? "✅"
             : "❌"}
@@ -166,8 +184,8 @@ const styles = StyleSheet.create({
 
   headerCard: {
     backgroundColor: "#1565c0",
-    borderRadius: 18,
     padding: 20,
+    borderRadius: 18,
     marginBottom: 16,
   },
 
@@ -177,12 +195,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 
-  local: {
+  municipio: {
     color: "#dbeafe",
     marginTop: 8,
+    fontSize: 15,
   },
 
-  infoCard: {
+  card: {
     backgroundColor: "#fff",
     borderRadius: 16,
     padding: 18,
@@ -211,13 +230,14 @@ const styles = StyleSheet.create({
   subtitulo: {
     fontSize: 18,
     fontWeight: "bold",
-    marginBottom: 10,
     color: "#1e293b",
+    marginBottom: 10,
   },
 
   badges: {
     flexDirection: "row",
     flexWrap: "wrap",
+    marginBottom: 20,
   },
 
   badge: {
@@ -234,7 +254,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#1976d2",
     padding: 16,
     borderRadius: 14,
-    marginTop: 15,
     marginBottom: 30,
   },
 

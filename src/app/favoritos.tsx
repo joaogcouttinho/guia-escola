@@ -1,70 +1,60 @@
-import { useEffect, useState } from "react";
+import { useFocusEffect, router } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   View,
   Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
-  Alert,
 } from "react-native";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
 
 export default function FavoritosScreen() {
   const [favoritos, setFavoritos] = useState<any[]>([]);
 
   async function carregarFavoritos() {
-    const dados =
-      await AsyncStorage.getItem("favoritos");
+    try {
+      const dados = await AsyncStorage.getItem("favoritos");
 
-    if (dados) {
-      setFavoritos(JSON.parse(dados));
-    } else {
-      setFavoritos([]);
+      if (dados) {
+        setFavoritos(JSON.parse(dados));
+      } else {
+        setFavoritos([]);
+      }
+    } catch (error) {
+      console.log(error);
     }
   }
 
-  async function removerFavorito(id: any) {
-    Alert.alert(
-      "Remover favorito",
-      "Deseja remover esta escola?",
-      [
-        {
-          text: "Cancelar",
-          style: "cancel",
-        },
-        {
-          text: "Remover",
-          onPress: async () => {
-            const novaLista =
-              favoritos.filter(
-                (item) => item.id !== id
-              );
+  useFocusEffect(
+    useCallback(() => {
+      carregarFavoritos();
+    }, [])
+  );
 
-            setFavoritos(novaLista);
+  async function removerFavorito(id: number) {
+    try {
+      const novaLista = favoritos.filter(
+        (item) => Number(item.id) !== Number(id)
+      );
 
-            await AsyncStorage.setItem(
-              "favoritos",
-              JSON.stringify(novaLista)
-            );
-          },
-        },
-      ]
-    );
+      await AsyncStorage.setItem(
+        "favoritos",
+        JSON.stringify(novaLista)
+      );
+
+      setFavoritos(novaLista);
+    } catch (error) {
+      console.log(error);
+    }
   }
-
-  useEffect(() => {
-    carregarFavoritos();
-  }, []);
 
   return (
     <View style={styles.container}>
       <FlatList
         data={favoritos}
-        keyExtractor={(item) =>
-          item.id.toString()
-        }
+        keyExtractor={(item) => item.id.toString()}
         ListEmptyComponent={
           <Text style={styles.vazio}>
             ⭐ Nenhuma escola favoritada.
@@ -81,7 +71,7 @@ export default function FavoritosScreen() {
               }
             >
               <Text style={styles.nome}>
-                {item.NO_ENTIDADE}
+                ❤️ {item.NO_ENTIDADE}
               </Text>
 
               <Text style={styles.local}>
@@ -96,7 +86,7 @@ export default function FavoritosScreen() {
               }
             >
               <Text style={styles.textoRemover}>
-                🗑️ Remover
+                Remover
               </Text>
             </TouchableOpacity>
           </View>
@@ -109,52 +99,44 @@ export default function FavoritosScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f4f7fb",
     padding: 16,
+    backgroundColor: "#f4f7fb",
   },
 
   vazio: {
     textAlign: "center",
     marginTop: 50,
     fontSize: 16,
-    color: "#64748b",
   },
 
   card: {
     backgroundColor: "#fff",
     padding: 16,
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 12,
-
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-
     elevation: 3,
   },
 
   nome: {
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "bold",
-    color: "#1e293b",
     marginBottom: 5,
   },
 
   local: {
-    color: "#64748b",
+    color: "#666",
   },
 
   botaoRemover: {
     marginTop: 12,
-    alignSelf: "flex-start",
+    backgroundColor: "#e53935",
+    padding: 10,
+    borderRadius: 8,
   },
 
   textoRemover: {
-    color: "#dc2626",
+    color: "#fff",
+    textAlign: "center",
     fontWeight: "bold",
   },
 });
